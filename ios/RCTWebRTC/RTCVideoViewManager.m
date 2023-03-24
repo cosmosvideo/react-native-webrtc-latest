@@ -396,6 +396,12 @@ RCT_CUSTOM_VIEW_PROPERTY(objectFit, NSString *, RTCVideoView) {
     view.objectFit = e;
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(setCustomRotation, NSInteger *, RTCVideoView) {
+  NSInteger s = [RCTConvert NSInteger:json];
+  float radians = (3.14 / 180) * s;
+  view.transform = CGAffineTransformRotate(CGAffineTransformIdentity, radians);
+ }
+
 RCT_CUSTOM_VIEW_PROPERTY(streamURL, NSString *, RTCVideoView) {
     if (!json) {
         view.videoTrack = nil;

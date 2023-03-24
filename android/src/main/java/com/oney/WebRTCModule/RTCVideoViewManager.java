@@ -34,6 +34,11 @@ public class RTCVideoViewManager extends SimpleViewManager<WebRTCView> {
         view.setMirror(mirror);
     }
 
+    @ReactProp(name = "setCustomRotation")
+    public void setCustomRotation(WebRTCView view, int rotation) {
+        view.setCustomRotation(rotation);
+    }
+
     /**
      * In the fashion of
      * https://www.w3.org/TR/html5/embedded-content-0.html#dom-video-videowidth

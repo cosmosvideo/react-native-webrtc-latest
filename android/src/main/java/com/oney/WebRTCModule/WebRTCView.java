@@ -19,6 +19,8 @@ import org.webrtc.RendererCommon;
 import org.webrtc.RendererCommon.RendererEvents;
 import org.webrtc.RendererCommon.ScalingType;
 import org.webrtc.SurfaceViewRenderer;
+import org.webrtc.VideoFrame;
+import org.webrtc.VideoSink;
 import org.webrtc.VideoTrack;
 
 import java.lang.reflect.InvocationTargetException;
@@ -143,6 +145,8 @@ public class WebRTCView extends ViewGroup {
      * The {@code VideoTrack}, if any, rendered by this {@code WebRTCView}.
      */
     private VideoTrack videoTrack;
+
+    private int customRotation=0;
 
     public WebRTCView(Context context) {
         super(context);
@@ -373,6 +377,11 @@ public class WebRTCView extends ViewGroup {
      * represented by {@code videoTrack} during its rendering, {@code true};
      * otherwise, {@code false}.
      */
+
+    public void setCustomRotation(int customRotation){
+        this.customRotation=customRotation;
+    }
+
     public void setMirror(boolean mirror) {
         if (this.mirror != mirror) {
             this.mirror = mirror;
@@ -527,7 +536,18 @@ public class WebRTCView extends ViewGroup {
             }
 
             try {
-                ThreadUtils.submitToExecutor(() -> { videoTrack.addSink(surfaceViewRenderer); }).get();
+                ThreadUtils.submitToExecutor(() -> { 
+                    if(customRotation > 0){
+                        videoTrack.addSink(new VideoSink() {
+                            @Override
+                            public void onFrame(VideoFrame videoFrame) {
+                                surfaceViewRenderer.onFrame(new VideoFrame(videoFrame.getBuffer(),customRotation,videoFrame.getTimestampNs()));
+                            }
+                        });
+                    }else{
+                        videoTrack.addSink(surfaceViewRenderer); 
+                    }
+                }).get();
             } catch (Throwable tr) {
                 // XXX If WebRTCModule#mediaStreamTrackRelease has already been
                 // invoked on videoTrack, then it is no longer safe to call addSink
